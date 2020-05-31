@@ -1,5 +1,14 @@
 from flask import Flask, render_template, request
+from flask_sqlalchemy import SQLAlchemy
+import config
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
+
 app = Flask(__name__)
+app.config.from_object(config)
+
+db.init_app(app)
 
 @app.route('/')
 def hello_world():
