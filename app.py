@@ -2,14 +2,16 @@ from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 import config
 from models import Account, Checkacc, Saveacc, Bank, Cusforacc, Customer, Department, Employee, Loan, Payinfo
+from models import db
 
-
-db = SQLAlchemy()
 
 app = Flask(__name__)
 app.config.from_object(config)
 
 db.init_app(app)
+
+with app.app_context():
+    db.create_all()
 
 @app.route('/')
 def hello_world():
@@ -19,19 +21,31 @@ def hello_world():
 def index():
     return render_template('index.html')
 
-@app.route('/client')
-def client():
-    labels = ['ID', '姓名', '联系电话', '地址', '联系人电话', '联系人姓名', '联系人邮箱', '与客户关系', '贷款负责人', '账户负责人']
-    result = Customer.query.all()
-    return render_template('client.html', labels=labels, content=result)
+@app.route('/client/create')
+def client_create():
+    init_form = {'cusID': '', 'cusname': '', 'bank': '', 'cusphone': '', 'address': '',
+        'contact_phone': '', 'contact_name': '', 'contact_email': '', 'relation': ''}
+    return render_template('client/create.html', init_form=init_form)
 
-@app.route('/account')
-def account():
-    return render_template('account.html')
+@app.route('/client/search')
+def client_search():
+    return render_template('client/search.html')
 
-@app.route('/debt')
-def debt():
-    return render_template('debt.html')
+@app.route('/account/create')
+def account_create():
+    return render_template('account/create.html')
+
+@app.route('/account/search')
+def account_search():
+    return render_template('account/search.html')
+
+@app.route('/debt/create')
+def debt_create():
+    return render_template('debt/create.html')
+
+@app.route('/debt/search')
+def debt_search():
+    return render_template('debt/search.html')
 
 @app.route('/statistics')
 def statistics():

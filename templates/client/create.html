@@ -28,7 +28,7 @@
         </div>
         <ul class="c-sidebar-nav">
             <li class="c-sidebar-nav-item">
-                <a class="c-sidebar-nav-link" href="index">
+                <a class="c-sidebar-nav-link" href="../index">
                     <svg class="c-sidebar-nav-icon">
                         <use xlink:href="../static/icons/free.svg#cil-home"></use>
                     </svg> 
@@ -45,12 +45,12 @@
                 </a>
                 <ul class="c-sidebar-nav-dropdown-items">
                     <li class="c-sidebar-nav-item">
-                        <a class="c-sidebar-nav-link" href="client"><span class="c-sidebar-nav-icon"></span> 新增客户</a>
+                        <a class="c-sidebar-nav-link" href="create"><span class="c-sidebar-nav-icon"></span> 新增客户</a>
                     </li>
                 </ul>
                 <ul class="c-sidebar-nav-dropdown-items">
                     <li class="c-sidebar-nav-item">
-                        <a class="c-sidebar-nav-link" href="client"><span class="c-sidebar-nav-icon"></span> 查询客户</a>
+                        <a class="c-sidebar-nav-link" href="search"><span class="c-sidebar-nav-icon"></span> 查询客户</a>
                     </li>
                 </ul>
             </li>
@@ -64,12 +64,12 @@
                 </a>
                 <ul class="c-sidebar-nav-dropdown-items">
                     <li class="c-sidebar-nav-item">
-                        <a class="c-sidebar-nav-link" href="account"><span class="c-sidebar-nav-icon"></span> 新增账户</a>
+                        <a class="c-sidebar-nav-link" href="../account/create"><span class="c-sidebar-nav-icon"></span> 新增账户</a>
                     </li>
                 </ul>
                 <ul class="c-sidebar-nav-dropdown-items">
                     <li class="c-sidebar-nav-item">
-                        <a class="c-sidebar-nav-link" href="account"><span class="c-sidebar-nav-icon"></span> 查询账户</a>
+                        <a class="c-sidebar-nav-link" href="../account/search"><span class="c-sidebar-nav-icon"></span> 查询账户</a>
                     </li>
                 </ul>
             </li>
@@ -83,18 +83,18 @@
                 </a>
                 <ul class="c-sidebar-nav-dropdown-items">
                     <li class="c-sidebar-nav-item">
-                        <a class="c-sidebar-nav-link" href="debt"><span class="c-sidebar-nav-icon"></span> 新增贷款</a>
+                        <a class="c-sidebar-nav-link" href="../debt/create"><span class="c-sidebar-nav-icon"></span> 新增贷款</a>
                     </li>
                 </ul>
                 <ul class="c-sidebar-nav-dropdown-items">
                     <li class="c-sidebar-nav-item">
-                        <a class="c-sidebar-nav-link" href="debt"><span class="c-sidebar-nav-icon"></span> 查询贷款</a>
+                        <a class="c-sidebar-nav-link" href="../debt/search"><span class="c-sidebar-nav-icon"></span> 查询贷款</a>
                     </li>
                 </ul>
             </li>
             <li class="c-sidebar-nav-title">统计</li>
             <li class="c-sidebar-nav-item">
-                <a class="c-sidebar-nav-link" href="statistics">
+                <a class="c-sidebar-nav-link" href="../statistics">
                     <svg class="c-sidebar-nav-icon">
                         <use xlink:href="../static/icons/free.svg#cil-chart-line"></use>
                     </svg> 
@@ -118,7 +118,66 @@
                 <div class="container-fluid">
                     <div class="fade-in">
                         <!-- Main content here -->
-                        <h4  class="display-4">贷款管理</h1>
+                        <!-- <h4  class="display-4">客户管理</h1> -->
+                        <div class="card">
+                            <div class="card-header">
+                                增加客户
+                            </div>
+                             <div class="card-body">
+                                {% set labels = ["账户号*", "身份证号*", "余额*", "开户银行*", 
+                                    "账户类型*", "货币类型", "利率", "透支额度"
+                                ] %}
+                                {% set names = ["accountID", "cusID", "money", "bank",
+                                    "accounttype", "savetype", "interestrate", "overdraft"
+                                ] %}
+                                <form method="post">
+                                    {% for i in range(labels|length) %}
+                                    <div class="form-group row">
+                                    <label class="col-2 col-form-label text-right">{{ labels[i] }}</label>
+                                    <div class="col-9">
+                                        {% if names[i] == "accounttype" %}
+                                        <div class="d-flex align-items-center h-100">
+                                        {% if init_form["accounttype"] != "checkacc" %}
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="accounttype" id="saveacc" value="saveacc" checked>
+                                            <label class="form-check-label" for="saveacc">储蓄账户</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="accounttype" id="checkacc" value="checkacc">
+                                            <label class="form-check-label" for="checkacc">支票账户</label>
+                                        </div>
+                                        {% else %}
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="accounttype" id="saveacc" value="saveacc">
+                                            <label class="form-check-label" for="saveacc">储蓄账户</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="accounttype" id="checkacc" value="checkacc" checked>
+                                            <label class="form-check-label" for="checkacc">支票账户</label>
+                                        </div>
+                                        {% endif %}
+                                        </div>
+                                        {% else %}
+                                        {% if names[i] in errors %}
+                                        <input type="text" class="form-control border-danger" 
+                                            name="{{ names[i] }}" value="{{ init_form[names[i]] }}">
+                                        {% else %}
+                                        <input type="text" class="form-control" name="{{ names[i] }}" 
+                                            value="{{ init_form[names[i]] }}">
+                                        {% endif %}
+                                        {% endif %}
+                                    </div>
+                                    </div>
+                                    {% endfor %}
+                                    <div class="row">
+                                    <div class="col-11 w-100 d-flex justify-content-end">
+                                        <button type="submit" class="btn btn-primary mr-2">提交</button>
+                                        <button type="submit" class="btn btn-secondary">重置</button>
+                                    </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </main>

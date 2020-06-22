@@ -28,7 +28,7 @@
         </div>
         <ul class="c-sidebar-nav">
             <li class="c-sidebar-nav-item">
-                <a class="c-sidebar-nav-link" href="index">
+                <a class="c-sidebar-nav-link" href="../index">
                     <svg class="c-sidebar-nav-icon">
                         <use xlink:href="../static/icons/free.svg#cil-home"></use>
                     </svg> 
@@ -45,12 +45,12 @@
                 </a>
                 <ul class="c-sidebar-nav-dropdown-items">
                     <li class="c-sidebar-nav-item">
-                        <a class="c-sidebar-nav-link" href="client"><span class="c-sidebar-nav-icon"></span> 新增客户</a>
+                        <a class="c-sidebar-nav-link" href="create"><span class="c-sidebar-nav-icon"></span> 新增客户</a>
                     </li>
                 </ul>
                 <ul class="c-sidebar-nav-dropdown-items">
                     <li class="c-sidebar-nav-item">
-                        <a class="c-sidebar-nav-link" href="client"><span class="c-sidebar-nav-icon"></span> 查询客户</a>
+                        <a class="c-sidebar-nav-link" href="search"><span class="c-sidebar-nav-icon"></span> 查询客户</a>
                     </li>
                 </ul>
             </li>
@@ -64,12 +64,12 @@
                 </a>
                 <ul class="c-sidebar-nav-dropdown-items">
                     <li class="c-sidebar-nav-item">
-                        <a class="c-sidebar-nav-link" href="account"><span class="c-sidebar-nav-icon"></span> 新增账户</a>
+                        <a class="c-sidebar-nav-link" href="../account/create"><span class="c-sidebar-nav-icon"></span> 新增账户</a>
                     </li>
                 </ul>
                 <ul class="c-sidebar-nav-dropdown-items">
                     <li class="c-sidebar-nav-item">
-                        <a class="c-sidebar-nav-link" href="account"><span class="c-sidebar-nav-icon"></span> 查询账户</a>
+                        <a class="c-sidebar-nav-link" href="../account/search"><span class="c-sidebar-nav-icon"></span> 查询账户</a>
                     </li>
                 </ul>
             </li>
@@ -83,18 +83,18 @@
                 </a>
                 <ul class="c-sidebar-nav-dropdown-items">
                     <li class="c-sidebar-nav-item">
-                        <a class="c-sidebar-nav-link" href="debt"><span class="c-sidebar-nav-icon"></span> 新增贷款</a>
+                        <a class="c-sidebar-nav-link" href="../debt/create"><span class="c-sidebar-nav-icon"></span> 新增贷款</a>
                     </li>
                 </ul>
                 <ul class="c-sidebar-nav-dropdown-items">
                     <li class="c-sidebar-nav-item">
-                        <a class="c-sidebar-nav-link" href="debt"><span class="c-sidebar-nav-icon"></span> 查询贷款</a>
+                        <a class="c-sidebar-nav-link" href="../debt/search"><span class="c-sidebar-nav-icon"></span> 查询贷款</a>
                     </li>
                 </ul>
             </li>
             <li class="c-sidebar-nav-title">统计</li>
             <li class="c-sidebar-nav-item">
-                <a class="c-sidebar-nav-link" href="statistics">
+                <a class="c-sidebar-nav-link" href="../statistics">
                     <svg class="c-sidebar-nav-icon">
                         <use xlink:href="../static/icons/free.svg#cil-chart-line"></use>
                     </svg> 
@@ -118,34 +118,42 @@
                 <div class="container-fluid">
                     <div class="fade-in">
                         <!-- Main content here -->
-                        <!-- <h4  class="display-4">账户管理</h1> -->
-                        <div class="card">
-                            <div class="card-header">
-                                账户列表
-                            </div>
-                            <div class="card-body">
-                                <table class="table table-bordered">
-                                    <thread>
-                                        {% for i in labels %}
-                                        <th scope="col">{{i}}</th>
-                                        {% endfor %}
-                                        <th scope="col">action</th>
-                                    </thread>
-                                    <tbody>
-                                        <tr>
-                                            {% for i in content %}
-                                            <td">{{i.cusID}}</th>
-                                            <td>{{i.cusname}}</td>
-                                            <td>
-                                                <button type="button" class="btn btn-success btn-sm">删除</button>
-                                                <button type="button" class="btn btn-danger btn-sm">编辑</button>
-                                            </td>
+                        <!-- <h4  class="display-4">客户管理</h1> -->
+                            <div class="card">
+                                <div class="card-header">
+                                    客户列表
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-bordered">
+                                        <thread>
+                                            {% for i in labels %}
+                                            <th scope="col">{{i}}</th>
                                             {% endfor %}
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                            <th scope="col">操作</th>
+                                        </thread>
+                                        <tbody>
+                                            <tr>
+                                                {% for i in content %}
+                                                <td>{{i.cusID}}</th>
+                                                <td>{{i.cusname}}</td>
+                                                <td>{{i.cusphone}}</td>
+                                                <td>{{i.address}}</td>
+                                                <td>{{i.contact_phone}}</td>
+                                                <td>{{i.contact_name}}</td>
+                                                <td>{{i.contact_Email}}</td>
+                                                <td>{{i.relation}}</td>
+                                                <td>{{i.loanres}}</td>
+                                                <td>{{i.accres}}</td>
+                                                <td>
+                                                    <button type="button" class="btn btn-success btn-sm">编辑</button>
+                                                    <button type="button" class="btn btn-danger btn-sm">删除</button>
+                                                </td>
+                                                {% endfor %}
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
-                        </div>
                     </div>
                 </div>
             </main>
