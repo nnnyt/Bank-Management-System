@@ -36,29 +36,61 @@
                 </a>
             </li>
             <li class="c-sidebar-nav-title">管理</li>
-            <li class="c-sidebar-nav-item">
-                <a class="c-sidebar-nav-link" href="client">
+            <li class="c-sidebar-nav-item c-sidebar-nav-dropdown">
+                <a class="c-sidebar-nav-link c-sidebar-nav-dropdown-toggle" href="#">
                     <svg class="c-sidebar-nav-icon">
                         <use xlink:href="../static/icons/free.svg#cil-user-follow"></use>
                     </svg> 
                     客户管理
                 </a>
+                <ul class="c-sidebar-nav-dropdown-items">
+                    <li class="c-sidebar-nav-item">
+                        <a class="c-sidebar-nav-link" href="client"><span class="c-sidebar-nav-icon"></span> 新增客户</a>
+                    </li>
+                </ul>
+                <ul class="c-sidebar-nav-dropdown-items">
+                    <li class="c-sidebar-nav-item">
+                        <a class="c-sidebar-nav-link" href="client"><span class="c-sidebar-nav-icon"></span> 查询客户</a>
+                    </li>
+                </ul>
             </li>
-            <li class="c-sidebar-nav-item">
-                <a class="c-sidebar-nav-link" href="account">
+
+            <li class="c-sidebar-nav-item c-sidebar-nav-dropdown">
+                <a class="c-sidebar-nav-link c-sidebar-nav-dropdown-toggle" href="#">
                     <svg class="c-sidebar-nav-icon">
                         <use xlink:href="../static/icons/free.svg#cil-star"></use>
-                    </svg> 
+                    </svg>
                     账户管理
                 </a>
+                <ul class="c-sidebar-nav-dropdown-items">
+                    <li class="c-sidebar-nav-item">
+                        <a class="c-sidebar-nav-link" href="account"><span class="c-sidebar-nav-icon"></span> 新增账户</a>
+                    </li>
+                </ul>
+                <ul class="c-sidebar-nav-dropdown-items">
+                    <li class="c-sidebar-nav-item">
+                        <a class="c-sidebar-nav-link" href="account"><span class="c-sidebar-nav-icon"></span> 查询账户</a>
+                    </li>
+                </ul>
             </li>
-            <li class="c-sidebar-nav-item">
-                <a class="c-sidebar-nav-link" href="debt">
+
+            <li class="c-sidebar-nav-item c-sidebar-nav-dropdown">
+                <a class="c-sidebar-nav-link c-sidebar-nav-dropdown-toggle" href="#">
                     <svg class="c-sidebar-nav-icon">
                         <use xlink:href="../static/icons/free.svg#cil-puzzle"></use>
                     </svg> 
                     贷款管理
                 </a>
+                <ul class="c-sidebar-nav-dropdown-items">
+                    <li class="c-sidebar-nav-item">
+                        <a class="c-sidebar-nav-link" href="debt"><span class="c-sidebar-nav-icon"></span> 新增贷款</a>
+                    </li>
+                </ul>
+                <ul class="c-sidebar-nav-dropdown-items">
+                    <li class="c-sidebar-nav-item">
+                        <a class="c-sidebar-nav-link" href="debt"><span class="c-sidebar-nav-icon"></span> 查询贷款</a>
+                    </li>
+                </ul>
             </li>
             <li class="c-sidebar-nav-title">统计</li>
             <li class="c-sidebar-nav-item">
@@ -94,20 +126,29 @@
                                 <div class="card-body">
                                     <table class="table table-bordered">
                                         <thread>
-                                            <th scope="col">ID</th>
-                                            <th scope="col">name</th>
-                                            <th scope="col">tel</th>
-                                            <th scope="col">action</th>
+                                            {% for i in labels %}
+                                            <th scope="col">{{i}}</th>
+                                            {% endfor %}
+                                            <th scope="col">操作</th>
                                         </thread>
                                         <tbody>
                                             <tr>
-                                                <th scope="row">1</th>
-                                                <td>Mark</td>
-                                                <td>Otto</td>
+                                                {% for i in content %}
+                                                <td>{{i.cusID}}</th>
+                                                <td>{{i.cusname}}</td>
+                                                <td>{{i.cusphone}}</td>
+                                                <td>{{i.address}}</td>
+                                                <td>{{i.contact_phone}}</td>
+                                                <td>{{i.contact_name}}</td>
+                                                <td>{{i.contact_Email}}</td>
+                                                <td>{{i.relation}}</td>
+                                                <td>{{i.loanres}}</td>
+                                                <td>{{i.accres}}</td>
                                                 <td>
-                                                    <button type="button" class="btn btn-success btn-sm">Success</button>
-                                                    <button type="button" class="btn btn-danger btn-sm">Delete</button>
+                                                    <button type="button" class="btn btn-success btn-sm">编辑</button>
+                                                    <button type="button" class="btn btn-danger btn-sm">删除</button>
                                                 </td>
+                                                {% endfor %}
                                             </tr>
                                         </tbody>
                                     </table>

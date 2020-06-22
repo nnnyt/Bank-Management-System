@@ -1,7 +1,8 @@
 from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 import config
-from flask_sqlalchemy import SQLAlchemy
+from models import Account, Checkacc, Saveacc, Bank, Cusforacc, Customer, Department, Employee, Loan, Payinfo
+
 
 db = SQLAlchemy()
 
@@ -20,7 +21,9 @@ def index():
 
 @app.route('/client')
 def client():
-    return render_template('client.html')
+    labels = ['ID', '姓名', '联系电话', '地址', '联系人电话', '联系人姓名', '联系人邮箱', '与客户关系', '贷款负责人', '账户负责人']
+    result = Customer.query.all()
+    return render_template('client.html', labels=labels, content=result)
 
 @app.route('/account')
 def account():
