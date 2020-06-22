@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, flash
+from flask import Flask, render_template, request, flash, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 import config
 from models import db
@@ -79,11 +79,72 @@ def customer_create():
             return render_template('customer/create.html', errors=errors, init_form=init_form, labels=labels, names=names)
         else:
             return render_template('customer/create.html', errors=errors, init_form=request.form, labels=labels, names=names)
-    
 
-@app.route('/customer/search')
+@app.route('/customer/search', methods=['GET', 'POST'])
 def customer_search():
-    return render_template('customer/search.html')
+    labels = ["客户姓名", "身份证号", "联系电话", "家庭住址", 
+                "联系人姓名", "联系人手机号", "联系人Email", "联系人关系"]
+    names = ["cusname", "cusID", "cusphone", "address",
+             "contact_name", "contact_phone", "contact_email", "relation"]
+    if request.method == 'GET':
+        init_form = {'cusname': '', 'cusID': '', 'cusphone': ''}
+        customers = Customer.query.all()
+        return render_template('customer/search.html', init_form=init_form, customers=customers, labels=labels, names=names)
+    if request.method == 'POST':
+        cusID = request.form['cusID']
+        cusname = request.form['cusname']
+        cusphone = request.form['cusphone']
+        customers = Customer.query.filter_by()
+        if 'and' in request.form:
+            if cusID:
+                customers = customers.filter_by(cusID=cusID)
+            if cusname:
+                customers = customers.filter_by(cusname=cusname)
+            if cusphone:
+                customers = customers.filter_by(cusphone=cusphone)
+        else:
+            if cusID or cusname or cusphone:
+                customers = customers.filter((Customer.cusID == cusID) | (Customer.cusname == cusname) | 
+                    (Customer.cusphone == cusphone))
+        return render_template('customer/search.html', customers=customers.all(), init_form=request.form, labels=labels, names=names)
+
+@app.route('/customers/update', methods=['POST'])
+def customer_update():
+    errors = []
+    cusID = request.form['cusID']
+    cusname = request.form['cusname']
+    cusphone = request.form['cusphone']
+    address = request.form['address']
+    contact_phone = request.form['contact_phone']
+    contact_name = request.form['contact_name']
+    contact_email = request.form['contact_email']
+    relation = request.form['relation']
+    if len(cusID) != 18:
+        errors.append('cusID')
+    if len(cusname) == 0 or len(cusname) > 10:
+        errors.append('cusname')
+    if len(cusphone) != 11:
+        errors.append('cusphone')
+    if len(address) > 50:
+        errors.append('address')
+    if len(contact_phone) != 11:
+        errors.append('contact_phone')
+    if len(contact_name) == 0 or len(contact_name) > 10:
+        errors.append('contact_name')
+    if len(contact_email) > 0 and '@' not in contact_email:
+        errors.append('contact_email')
+    if len(relation) == 0 or len(relation) > 10:
+        errors.append('relation')
+    if not errors:
+        Customer.query.filter_by(cusID=cusID).update(dict(cusID=cusID, cusname=cusname, cusphone=cusphone, 
+            address=address, contact_name=contact_name, contact_phone=contact_phone, 
+            contact_email=contact_email, relation=relation))
+        db.session.commit()
+        flash('Update customer ' + cusID + ' successfully!')
+        return redirect(url_for('customer_search'))
+    else:
+        flash('Update customer ' + cusID + ' unsuccessfully!')
+        return redirect(url_for('customer_search'))
 
 @app.route('/account/create', methods=['GET', 'POST'])
 def account_create():

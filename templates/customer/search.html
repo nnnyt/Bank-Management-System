@@ -124,38 +124,111 @@
                                     客户列表
                                 </div>
                                 <div class="card-body">
-                                    <table class="table table-bordered">
-                                        <thread>
-                                            {% for i in labels %}
-                                            <th scope="col">{{i}}</th>
-                                            {% endfor %}
-                                            <th scope="col">操作</th>
-                                        </thread>
+                                    <form class="form-inline" method="post">
+                                        <div class="d-flex justify-content-between mb-2 w-100">
+                                          <div class="form-group">
+                                            <label class="form-label mr-2">客户姓名</label>
+                                            <input type="text" class="form-control" name="cusname" value="{{ init_form['cusname'] }}">
+                                          </div>
+                                          <div class="form-group">
+                                            <label class="form-label mr-2">身份证号</label>
+                                            <input type="text" class="form-control" name="cusID" value="{{ init_form['cusID'] }}">
+                                          </div>
+                                          <div class="form-group">
+                                            <label class="form-label mr-2">联系电话</label>
+                                            <input type="text" class="form-control" name="cusphone" value="{{ init_form['cusphone'] }}">
+                                          </div>
+                                          <input type="submit" class="btn btn-primary btn-sm" name="and" value="AND查询">
+                                          <input type="submit" class="btn btn-primary btn-sm" name="or" value="OR查询">
+                                        </div>
+                                      </form>
+                                    <table class="table table-responsive-sm table-bordered table-striped table">
+                                      <thead>
+                                        <tr class="text-center">
+                                          <th scope="col">#</th>
+                                          <th scope="col">客户姓名</th>
+                                          <th scope="col">身份证号</th>
+                                          <th scope="col">联系电话</th>
+                                          <th scope="col">操作</th>
+                                        </tr>
+                                      </thead>
                                         <tbody>
-                                            <tr>
-                                                {% for i in content %}
-                                                <td>{{i.cusID}}</th>
-                                                <td>{{i.cusname}}</td>
-                                                <td>{{i.cusphone}}</td>
-                                                <td>{{i.address}}</td>
-                                                <td>{{i.contact_phone}}</td>
-                                                <td>{{i.contact_name}}</td>
-                                                <td>{{i.contact_Email}}</td>
-                                                <td>{{i.relation}}</td>
-                                                <td>{{i.loanres}}</td>
-                                                <td>{{i.accres}}</td>
-                                                <td>
-                                                    <button type="button" class="btn btn-success btn-sm">编辑</button>
-                                                    <button type="button" class="btn btn-danger btn-sm">删除</button>
-                                                </td>
-                                                {% endfor %}
-                                            </tr>
-                                        </tbody>
+                                        {% for cus in customers %}
+                                        <tr class="text-center">
+                                          <th class="align-middle" scope="row">{{ customers.index(cus) }}</th>
+                                          <td class="align-middle">{{ cus.cusname }}</td>
+                                          <td class="align-middle">{{ cus.cusID }}</td>
+                                          <td class="align-middle">{{ cus.cusphone }}</td>
+                                          <td>
+                                            <button type="submit" class="btn btn-info btn-sm" 
+                                              data-toggle="modal" data-target="#detail{{ cus.cusID }}">详情</button>
+                                            <button type="submit" class="btn btn-sm btn-success" 
+                                                data-toggle="modal" data-target="#edit{{ cus.cusID }}">编辑</button>
+                                            <a type="submit" class="btn btn-danger btn-sm" >删除</a>
+                                          </td>
+                                        </tr>
+                                        {% endfor %}
+                                      </tbody>
                                     </table>
                                 </div>
                             </div>
                     </div>
                 </div>
+                {% for cus in customers %}
+                <div class="modal fade bd-example-modal-lg" id="detail{{ cus.cusID }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                        <form class="pt-3" method="post">
+                            {% for i in range(labels|length) %}
+                            <div class="form-group row">
+                            <label class="col-3 col-form-label text-right">{{ labels[i] }}</label>
+                            <div class="col-8">
+                                <input readonly type="text" class="form-control" name="{{ names[i] }}" 
+                                value="{{ cus[names[i]] }}">
+                            </div>
+                            </div>
+                            {% endfor %}
+                        </form>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% for cus in customers %}
+                <div class="modal fade bd-example-modal-lg" id="edit{{ cus.cusID }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                        {% set editable = [false, false, true, true,
+                            true, true, true, true
+                        ] %}
+                        <form class="pt-3" method="post" action="{{ url_for('customer_update') }}">
+                            {% for i in range(labels|length) %}
+                            <div class="form-group row">
+                            <label class="col-3 col-form-label text-right">{{ labels[i] }}</label>
+                            <div class="col-8">
+                                {% if editable[i] %}
+                                <input type="text" class="form-control" name="{{ names[i] }}" 
+                                value="{{ cus[names[i]] }}">
+                                {% else %}
+                                <input type="text" class="form-control" name="{{ names[i] }}" 
+                                value="{{ cus[names[i]] }}" readonly>
+                                {% endif %}
+                            </div>
+                            </div>
+                            {% endfor %}
+                            <div class="row">
+                            <div class="col-11 w-100 d-flex justify-content-end">
+                                <button type="submit" class="btn btn-primary">提交</button>
+                            </div>
+                            </div>
+                        </form>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                {% endfor %}
             </main>
             </div>
             <footer class="c-footer">
@@ -163,6 +236,22 @@
             <div>&copy; 2020 nnnyt. All rights reserved.</div>
             <!-- <div class="ml-auto">Powered by&nbsp;<a href="https://coreui.io/">CoreUI</a></div> -->
             </footer>
+            {% with messages = get_flashed_messages() %}
+            {% for message in messages %}
+            <div class="fixed-top d-flex justify-content-end m-3">
+            {% if "unsuccessfully" in message %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {% else %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {% endif %}
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            </div>
+            {% endfor %}
+        {% endwith %}
         <!-- CoreUI and necessary plugins-->
         <script src="../static/js/coreui.bundle.min.js"></script>
         <!-- Plugins and scripts required by this view-->
