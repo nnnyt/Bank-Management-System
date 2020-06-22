@@ -118,7 +118,36 @@
                 <div class="container-fluid">
                     <div class="fade-in">
                         <!-- Main content here -->
-                        <h4  class="display-4">贷款管理</h1>
+                        <!-- <h4  class="display-4">贷款管理</h1> -->
+                        <div class="card">
+                            <div class="card-header">
+                                增加贷款
+                            </div>
+                             <div class="card-body">
+                                <form method="post">
+                                    {% for i in range(labels|length) %}
+                                    <div class="form-group row">
+                                      <label class="col-2 col-form-label text-right">{{ labels[i] }}</label>
+                                      <div class="col-9">
+                                        {% if names[i] in errors %}
+                                        <input type="text" class="form-control border-danger" 
+                                          name="{{ names[i] }}" value="{{ init_form[names[i]] }}">
+                                        {% else %}
+                                        <input type="text" class="form-control" name="{{ names[i] }}" 
+                                          value="{{ init_form[names[i]] }}">
+                                        {% endif %}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                    <div class="row">
+                                      <div class="col-11 w-100 d-flex justify-content-end">
+                                        <button type="submit" class="btn btn-primary mr-2">提交</button>
+                                        <button type="submit" class="btn btn-secondary">重置</button>
+                                      </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </main>
@@ -128,6 +157,18 @@
             <div>&copy; 2020 nnnyt. All rights reserved.</div>
             <!-- <div class="ml-auto">Powered by&nbsp;<a href="https://coreui.io/">CoreUI</a></div> -->
             </footer>
+            {% with messages = get_flashed_messages() %}
+            {% for message in messages %}
+            <div class="fixed-top d-flex justify-content-end m-3">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            </div>
+            {% endfor %}
+            {% endwith %}
         <!-- CoreUI and necessary plugins-->
         <script src="../static/js/coreui.bundle.min.js"></script>
         <!-- Plugins and scripts required by this view-->

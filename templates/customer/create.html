@@ -124,12 +124,6 @@
                                 增加客户
                             </div>
                              <div class="card-body">
-                                {% set labels = ["注册银行*", "客户姓名*", "身份证号*", "联系电话*", "家庭住址", 
-                                    "联系人姓名*", "联系人手机号*", "联系人Email", "联系人与客户关系*"
-                                ] %}
-                                {% set names = ["bank", "cusname", "cusID", "cusphone", "address",
-                                    "contact_name", "contact_phone", "contact_email", "relation"
-                                ] %}
                                 <form method="post">
                                     {% for i in range(labels|length) %}
                                     <div class="form-group row">
@@ -151,7 +145,7 @@
                                         <button type="submit" class="btn btn-secondary">重置</button>
                                       </div>
                                     </div>
-                                  </form>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -163,6 +157,18 @@
             <div>&copy; 2020 nnnyt. All rights reserved.</div>
             <!-- <div class="ml-auto">Powered by&nbsp;<a href="https://coreui.io/">CoreUI</a></div> -->
             </footer>
+            {% with messages = get_flashed_messages() %}
+            {% for message in messages %}
+            <div class="fixed-top d-flex justify-content-end m-3">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            </div>
+            {% endfor %}
+            {% endwith %}
         <!-- CoreUI and necessary plugins-->
         <script src="../static/js/coreui.bundle.min.js"></script>
         <!-- Plugins and scripts required by this view-->
