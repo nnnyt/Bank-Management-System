@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <base href="./">
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>银行管理系统</title>
+        <!-- Main styles for this application-->
+        <link href="{{url_for('static', filename='css/coreui.css')}}" rel="stylesheet">
+        <!-- Global site tag (gtag.js) - Google Analytics-->
+        <script>
+            window.dataLayer = window.dataLayer || [];
+    
+            function gtag() {
+            dataLayer.push(arguments);
+            }
+            gtag('js', new Date());
+            // Shared ID
+            gtag('config', 'UA-118965717-3');
+            // Bootstrap ID
+            gtag('config', 'UA-118965717-5');
+        </script>
+    </head>
+    <body class="c-app">
+        <div class="c-sidebar c-sidebar-dark c-sidebar-fixed c-sidebar-lg-show" id="sidebar">
+        <div class="c-sidebar-brand d-lg-down-none">
+            银行管理系统
+        </div>
+        <ul class="c-sidebar-nav">
+            <li class="c-sidebar-nav-item">
+                <a class="c-sidebar-nav-link" href="../index">
+                    <svg class="c-sidebar-nav-icon">
+                        <use xlink:href="../static/icons/free.svg#cil-home"></use>
+                    </svg> 
+                    首页
+                </a>
+            </li>
+            <li class="c-sidebar-nav-title">管理</li>
+            <li class="c-sidebar-nav-item c-sidebar-nav-dropdown">
+                <a class="c-sidebar-nav-link c-sidebar-nav-dropdown-toggle" href="#">
+                    <svg class="c-sidebar-nav-icon">
+                        <use xlink:href="../static/icons/free.svg#cil-user-follow"></use>
+                    </svg> 
+                    客户管理
+                </a>
+                <ul class="c-sidebar-nav-dropdown-items">
+                    <li class="c-sidebar-nav-item">
+                        <a class="c-sidebar-nav-link" href="../client/create"><span class="c-sidebar-nav-icon"></span> 新增客户</a>
+                    </li>
+                </ul>
+                <ul class="c-sidebar-nav-dropdown-items">
+                    <li class="c-sidebar-nav-item">
+                        <a class="c-sidebar-nav-link" href="../client/search"><span class="c-sidebar-nav-icon"></span> 查询客户</a>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="c-sidebar-nav-item c-sidebar-nav-dropdown">
+                <a class="c-sidebar-nav-link c-sidebar-nav-dropdown-toggle" href="#">
+                    <svg class="c-sidebar-nav-icon">
+                        <use xlink:href="../static/icons/free.svg#cil-star"></use>
+                    </svg>
+                    账户管理
+                </a>
+                <ul class="c-sidebar-nav-dropdown-items">
+                    <li class="c-sidebar-nav-item">
+                        <a class="c-sidebar-nav-link" href="create"><span class="c-sidebar-nav-icon"></span> 新增账户</a>
+                    </li>
+                </ul>
+                <ul class="c-sidebar-nav-dropdown-items">
+                    <li class="c-sidebar-nav-item">
+                        <a class="c-sidebar-nav-link" href="search"><span class="c-sidebar-nav-icon"></span> 查询账户</a>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="c-sidebar-nav-item c-sidebar-nav-dropdown">
+                <a class="c-sidebar-nav-link c-sidebar-nav-dropdown-toggle" href="#">
+                    <svg class="c-sidebar-nav-icon">
+                        <use xlink:href="../static/icons/free.svg#cil-puzzle"></use>
+                    </svg> 
+                    贷款管理
+                </a>
+                <ul class="c-sidebar-nav-dropdown-items">
+                    <li class="c-sidebar-nav-item">
+                        <a class="c-sidebar-nav-link" href="../debt/create"><span class="c-sidebar-nav-icon"></span> 新增贷款</a>
+                    </li>
+                </ul>
+                <ul class="c-sidebar-nav-dropdown-items">
+                    <li class="c-sidebar-nav-item">
+                        <a class="c-sidebar-nav-link" href="../debt/search"><span class="c-sidebar-nav-icon"></span> 查询贷款</a>
+                    </li>
+                </ul>
+            </li>
+            <li class="c-sidebar-nav-title">统计</li>
+            <li class="c-sidebar-nav-item">
+                <a class="c-sidebar-nav-link" href="../statistics">
+                    <svg class="c-sidebar-nav-icon">
+                        <use xlink:href="../static/icons/free.svg#cil-chart-line"></use>
+                    </svg> 
+                    业务统计
+                </a>
+            </li>
+        </ul>
+        <button class="c-sidebar-minimizer c-class-toggler" type="button" data-target="_parent" data-class="c-sidebar-minimized"></button>
+        </div>
+        <div class="c-wrapper c-fixed-components">
+            <header class="c-header c-header-light c-header-fixed c-header-with-subheader">
+                <!-- Header content here -->
+                <button class="c-header-toggler c-class-toggler mfs-3 d-md-down-none" type="button" data-target="#sidebar" data-class="c-sidebar-lg-show" responsive="true">
+                    <svg class="c-icon c-icon-lg">
+                    <use xlink:href="../static/icons/free.svg#cil-menu"></use>
+                    </svg>
+                </button>
+            </header>
+            <div class="c-body">
+            <main class="c-main">
+                <div class="container-fluid">
+                    <div class="fade-in">
+                        <!-- Main content here -->
+                        <!-- <h4  class="display-4">账户管理</h1> -->
+                        <div class="card">
+                            <div class="card-header">
+                                账户列表
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-bordered">
+                                    <thread>
+                                        {% for i in labels %}
+                                        <th scope="col">{{i}}</th>
+                                        {% endfor %}
+                                        <th scope="col">action</th>
+                                    </thread>
+                                    <tbody>
+                                        <tr>
+                                            {% for i in content %}
+                                            <td">{{i.cusID}}</th>
+                                            <td>{{i.cusname}}</td>
+                                            <td>
+                                                <button type="button" class="btn btn-success btn-sm">删除</button>
+                                                <button type="button" class="btn btn-danger btn-sm">编辑</button>
+                                            </td>
+                                            {% endfor %}
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+            </div>
+            <footer class="c-footer">
+            <!-- Footer content here -->
+            <div>&copy; 2020 nnnyt. All rights reserved.</div>
+            <!-- <div class="ml-auto">Powered by&nbsp;<a href="https://coreui.io/">CoreUI</a></div> -->
+            </footer>
+        <!-- CoreUI and necessary plugins-->
+        <script src="../static/js/coreui.bundle.min.js"></script>
+        <!-- Plugins and scripts required by this view-->
+    </body>
+</html>
