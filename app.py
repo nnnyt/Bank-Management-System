@@ -82,9 +82,9 @@ def customer_create():
 
 @app.route('/customer/search', methods=['GET', 'POST'])
 def customer_search():
-    labels = ["客户姓名", "身份证号", "联系电话", "家庭住址", 
+    labels = ["注册银行", "客户姓名", "身份证号", "联系电话", "家庭住址", 
                 "联系人姓名", "联系人手机号", "联系人Email", "联系人关系"]
-    names = ["cusname", "cusID", "cusphone", "address",
+    names = ["bank", "cusname", "cusID", "cusphone", "address",
              "contact_name", "contact_phone", "contact_email", "relation"]
     if request.method == 'GET':
         init_form = {'cusname': '', 'cusID': '', 'cusphone': ''}
@@ -111,6 +111,7 @@ def customer_search():
 @app.route('/customers/update', methods=['POST'])
 def customer_update():
     errors = []
+    bank = request.form['bank']
     cusID = request.form['cusID']
     cusname = request.form['cusname']
     cusphone = request.form['cusphone']
@@ -138,12 +139,24 @@ def customer_update():
     if not errors:
         Customer.query.filter_by(cusID=cusID).update(dict(cusID=cusID, cusname=cusname, cusphone=cusphone, 
             address=address, contact_name=contact_name, contact_phone=contact_phone, 
-            contact_email=contact_email, relation=relation))
+            contact_email=contact_email, relation=relation, bank=bank))
         db.session.commit()
         flash('Update customer ' + cusID + ' successfully!')
         return redirect(url_for('customer_search'))
     else:
         flash('Update customer ' + cusID + ' unsuccessfully!')
+        return redirect(url_for('customer_search'))
+
+@app.route('/customers/delete/<cusID>')
+def customer_delete(cusID):
+    cus = Customer.query.filter_by(cusID=cusID)
+    try:
+        cus.delete()
+        db.session.commit()
+        flash('Delete customer ' + cusID + ' successfully!')
+        return redirect(url_for('customer_search'))
+    except:
+        flash('Delete customer ' + cusID + ' unsuccessfully!')
         return redirect(url_for('customer_search'))
 
 @app.route('/account/create', methods=['GET', 'POST'])
@@ -206,9 +219,113 @@ def account_create():
             return render_template('account/create.html', errors=errors, init_form=request.form, labels=labels, names=names)
 
 
-@app.route('/account/search')
+@app.route('/account/search', methods=['GET', 'POST'])
 def account_search():
-    return render_template('account/search.html')
+    if request.method == 'GET':
+        init_form = {'accountID': '', 'cusID': '', 'accounttype': ''}
+        accounts = Account.query.all()
+        for acc in accounts:
+            setattr(acc, 'bank', acc.cusforacc.bank)
+            setattr(acc, 'cusID', acc.cusforacc.cusID)
+            if acc.accounttype == 'saveacc':
+                setattr(acc, 'interestrate', acc.saveacc.interestrate)
+                setattr(acc, 'savetype', acc.saveacc.savetype)
+            else:
+                setattr(acc, 'overdraft', acc.checkacc.overdraft)
+        return render_template('account/search.html', init_form=init_form, accounts=accounts)
+    if request.method == 'POST':
+        accountID = request.form['accountID']
+        cusID = request.form['cusID']
+        accounttype = request.form['accounttype']
+        accounts = Account.query.filter_by()
+        if 'and' in request.form:
+            if accountID:
+                accounts = account.filter_by(accountID=accountID)
+            if cusID:
+                accounts = accounts.filter(Account.cusforacc.has(Cusforacc.cusID==cusID))
+            if accounttype:
+                accounts = accounts.filter_by(accounttype=accounttype)
+        else:
+            if accountID or cusID:
+                accounts = accounts.filter((Account.accountID == accountID) | (Account.cusID == cusID))
+            if accounttype:
+                accounts = accounts.filter_by(accounttype=accounttype)
+        accounts = accounts.all()
+        for acc in accounts:
+            setattr(acc, 'bank', acc.cusforacc.bank)
+            setattr(acc, 'cusID', acc.cusforacc.cusID)
+            if acc.accounttype == 'saveacc':
+                setattr(acc, 'interestrate', acc.saveacc.interestrate)
+                setattr(acc, 'savetype', acc.saveacc.savetype)
+            else:
+                setattr(acc, 'overdraft', acc.checkacc.overdraft)
+        return render_template('account/search.html', init_form=request.form, accounts=accounts)
+
+@app.route('/account/update', methods=['POST'])
+def account_update():
+    errors = []
+    accountID = request.form['accountID']
+    cusID = request.form['cusID']
+    money = request.form['money']
+    bank = request.form['bank']
+    accounttype = request.form['accounttype']
+    if accounttype == 'saveacc':
+        savetype = request.form['savetype']
+        interestrate = request.form['interestrate']
+    else:
+        overdraft = request.form['overdraft']
+    if len(accountID) != 6:
+        errors.append('accountID')
+    try:
+        money = float(money)
+    except:
+        errors.append('money')
+    if len(bank) == 0 or len(bank) > 20:
+        errors.append('bank')
+    if accounttype == 'saveacc':
+        try:
+            interestrate = float(interestrate)
+        except:
+            errors.append('interestrate')
+    else:
+        try:
+            overdraft = float(overdraft)
+        except:
+            errors.append('overdraft')
+    if not Customer.query.filter_by(cusID=cusID).first():
+        errors.append('cusID')
+    if not errors:
+        acc = Account.query.filter_by(accountID=accountID)
+        b = Bank.query.filter_by(bankname=acc.first().cusforacc.bank)
+        b.update(dict(money=b.first().money - acc.first().money + money))
+        acc.update(dict(accountID=accountID, money=money, settime=datetime.now(), accounttype=accounttype))
+        if accounttype == 'saveacc':
+            Saveacc.query.filter_by(accountID=accountID).update(
+                dict(accountID=accountID, interestrate=interestrate, savetype=savetype))
+        else:
+            Checkacc.query.filter_by(accountID=accountID).update(
+                dict(accountID=accountID, overdraft=overdraft))
+        Cusforacc.query.filter_by(accountID=accountID).update(
+            dict(accountID=accountID, cusID=cusID, visit=datetime.now()))
+        db.session.commit()
+        flash('Update new account ' + accountID + ' successfully!')
+        return redirect(url_for('account.search'))
+    else:
+        flash('Update new account ' + accountID + ' unsuccessfully!')
+        return redirect(url_for('account.search'))
+
+@app.route('/account/delete/<accountID>')
+def account_delete(accountID):
+    acc = Account.query.filter_by(accountID=accountID)
+    b = Bank.query.filter_by(bankname=acc.first().cusforacc.bank)
+    b.update(dict(money=b.first().money - acc.first().money))
+    Saveacc.query.filter_by(accountID=accountID).delete()
+    Checkacc.query.filter_by(accountID=accountID).delete()
+    Cusforacc.query.filter_by(accountID=accountID).delete()
+    acc.delete()
+    db.session.commit()
+    flash('Delete account ' + accountID + ' successfully!')
+    return redirect(url_for('account_search'))
 
 @app.route('/debt/create' , methods=['GET', 'POST'])
 def debt_create():

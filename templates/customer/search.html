@@ -138,8 +138,8 @@
                                             <label class="form-label mr-2">联系电话</label>
                                             <input type="text" class="form-control" name="cusphone" value="{{ init_form['cusphone'] }}">
                                           </div>
-                                          <input type="submit" class="btn btn-primary btn-sm" name="and" value="AND查询">
-                                          <input type="submit" class="btn btn-primary btn-sm" name="or" value="OR查询">
+                                          <input type="submit" class="btn btn-info btn-sm" name="and" value="AND查询">
+                                          <input type="submit" class="btn btn-info btn-sm" name="or" value="OR查询">
                                         </div>
                                       </form>
                                     <table class="table table-responsive-sm table-bordered table-striped table">
@@ -161,10 +161,11 @@
                                           <td class="align-middle">{{ cus.cusphone }}</td>
                                           <td>
                                             <button type="submit" class="btn btn-info btn-sm" 
-                                              data-toggle="modal" data-target="#detail{{ cus.cusID }}">详情</button>
+                                              data-toggle="modal" data-target="#detail{{ cus.cusID }}">查看</button>
                                             <button type="submit" class="btn btn-sm btn-success" 
                                                 data-toggle="modal" data-target="#edit{{ cus.cusID }}">编辑</button>
-                                            <a type="submit" class="btn btn-danger btn-sm" >删除</a>
+                                            <a type="submit" class="btn btn-danger btn-sm" 
+                                            href="{{ url_for('customer_delete', cusID=cus.cusID) }}">删除</a>
                                           </td>
                                         </tr>
                                         {% endfor %}
@@ -200,7 +201,7 @@
                     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                     <div class="modal-content">
                         <div class="modal-body">
-                        {% set editable = [false, false, true, true,
+                        {% set editable = [false, false, false, true, true,
                             true, true, true, true
                         ] %}
                         <form class="pt-3" method="post" action="{{ url_for('customer_update') }}">
@@ -251,7 +252,7 @@
             </div>
             </div>
             {% endfor %}
-        {% endwith %}
+            {% endwith %}
         <!-- CoreUI and necessary plugins-->
         <script src="../static/js/coreui.bundle.min.js"></script>
         <!-- Plugins and scripts required by this view-->
