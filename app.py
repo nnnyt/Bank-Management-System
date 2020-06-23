@@ -4,7 +4,7 @@ import config
 from models import db
 from datetime import datetime
 from init_db import init_data
-from models import Bank, Customer, Account, Saveacc, Checkacc, Cusforacc, Loan, Cusforloan, Employee
+from models import Bank, Customer, Account, Saveacc, Checkacc, Cusforacc, Loan, Cusforloan, Employee, Payinfo
 
 app = Flask(__name__)
 app.config.from_object(config)
@@ -308,10 +308,10 @@ def account_update():
         Cusforacc.query.filter_by(accountID=accountID).update(
             dict(accountID=accountID, cusID=cusID, visit=datetime.now()))
         db.session.commit()
-        flash('Update new account ' + accountID + ' successfully!')
+        flash('Update account ' + accountID + ' successfully!')
         return redirect(url_for('account.search'))
     else:
-        flash('Update new account ' + accountID + ' unsuccessfully!')
+        flash('Update account ' + accountID + ' unsuccessfully!')
         return redirect(url_for('account.search'))
 
 @app.route('/account/delete/<accountID>')
@@ -364,9 +364,89 @@ def debt_create():
         else:
             return render_template('debt/create.html', errors=errors, init_form=request.form, labels=labels, names=names)
 
-@app.route('/debt/search')
+@app.route('/debt/search', methods=['GET', 'POST'])
 def debt_search():
-    return render_template('debt/search.html')
+    labels = ["贷款号", "身份证号", "贷款金额", "剩余金额", "贷款银行", "贷款状态"]
+    names = ["loanID", "cusID", "money", "rest_money", "bank", "state"]
+    if request.method == 'GET':
+        init_form = {'loanID': '', 'cusID': '', 'state': ''}
+        loans = Loan.query.all()
+        for loan in loans:
+            setattr(loan, 'cusID', loan.cusforloan[0].cusID)
+        return render_template('debt/search.html', init_form=init_form, loans=loans, labels=labels, names=names)
+    if request.method == 'POST':
+        loanID = request.form['loanID']
+        cusID = request.form['cusID']
+        state = request.form['state']
+        loans = Loan.query.filter_by()
+        if 'and' in request.form:
+            if loanID:
+                loans = loans.filter_by(loanID=loanID)
+            if cusID:
+                loans = loans.filter(Loan.Cusforloan.has(Cusforloan.cusID==cusID))
+            if state:
+                loans = loans.filter_by(state=state)
+        else:
+            if cusID or loanID:
+                loans = loans.filter(Loan.cusforloan.has(Cusforloan.cusID == cusID) | 
+                (Loan.loanID == loanID))
+            if state:
+                loans = loans.filter_by(state=state)
+        loans = loans.all()
+        for loan in loans:
+            setattr(loan, 'cusID', loan.cusforloan[0].cusID)
+        return render_template('debt/search.html', loans=loans, init_form=request.form, labels=labels, names=names)
+
+@app.route('/debt/update', methods=['POST'])
+def debt_update():
+    errors = []
+    loanID = request.form['loanID']
+    cusID = request.form['cusID']
+    money = request.form['money']
+    if len(loanID) != 4:
+        errors.append('loanID')
+    try:
+        money = float(money)
+    except:
+        errors.append('money')
+    if money < 0:
+        errors.append('money')
+    loan = Loan.query.filter_by(loanID=loanID).first()
+    if not loan:
+        errors.append('loanID')
+    elif loan.state == 'finished':
+        errors.append('loanID')
+    elif loan.rest_money < money:
+        errors.append('loanID')
+    if loan.rest_money - money != 0:
+        state = 'going'
+    else:
+        state = 'finished'
+    if not errors:
+        loan = Loan.query.filter_by(loanID=loanID)
+        b = Bank.query.filter_by(bankname=loan.first().bank)
+        b.update(dict(money=b.first().money - money))
+        loan.update(dict(state=state, rest_money=loan.first().rest_money-money))
+        new_payinfo = Payinfo(loanID=loanID, cusID=cusID, money=money, paytime=datetime.now())
+        db.session.add(new_payinfo)
+        db.session.commit()
+        flash('Update loan ' + loanID + ' successfully!')
+        return redirect(url_for('debt_search'))
+    else:
+        flash('Update loan ' + loanID + ' unsuccessfully!')
+        return redirect(url_for('debt_search'))
+
+@app.route('/debt/delete<loanID>')
+def debt_delete(loanID):
+    loan = Loan.query.filter_by(loanID=loanID)
+    if loan.first().state == 'going':
+        flash('Delete loan ' + loanID + ' unsuccessfully!')
+        return redirect(url_for('debt_search'))
+    Cusforloan.query.filter_by(loanID=loanID).delete()
+    loan.delete()
+    db.session.commit()
+    flash('Delete loan ' + loanID + ' successfully!')
+    return redirect(url_for('debt_search'))
 
 @app.route('/statistics')
 def statistics():

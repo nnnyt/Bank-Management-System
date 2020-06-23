@@ -118,9 +118,198 @@
                 <div class="container-fluid">
                     <div class="fade-in">
                         <!-- Main content here -->
-                        <h4  class="display-4">贷款管理</h1>
+                        <!-- <h4  class="display-4">贷款管理</h1> -->
+                            <div class="card">
+                                <div class="card-header">
+                                    贷款列表
+                                </div>
+                                <div class="card-body">
+                                    <form class="form-inline" method="post">
+                                        <div class="d-flex justify-content-between mb-2 w-100">
+                                            <div class="form-group">
+                                                <label class="form-label mr-2">贷款号</label>
+                                                <input type="text" class="form-control" name="loanID" value="{{ init_form['loanID'] }}">
+                                              </div>
+                                              <div class="form-group">
+                                                <label class="form-label mr-2">身份证号</label>
+                                                <input type="text" class="form-control" name="cusID" value="{{ init_form['cusID'] }}">
+                                              </div>
+                                              <div class="form-group">
+                                                <label class="form-label mr-2">贷款状态</label>
+                                                <select class="form-control" name="state">
+                                                  {% if init_form['state'] == "" %}
+                                                  <option value="" selected>全部状态</option>
+                                                  <option value="waiting">未开始发放</option>
+                                                  <option value="going">发放中</option>
+                                                  <option value="finished">已全部发放</option>
+                                                  {% elif init_form['state'] == "waiting" %}
+                                                  <option value="">全部状态</option>
+                                                  <option value="waiting" selected>未开始发放</option>
+                                                  <option value="going">发放中</option>
+                                                  <option value="finished">已全部发放</option>
+                                                  {% elif init_form['state'] == "going" %}
+                                                  <option value="">全部状态</option>
+                                                  <option value="waiting">未开始发放</option>
+                                                  <option value="going" selected>发放中</option>
+                                                  <option value="finished">已全部发放</option>
+                                                  {% else %}
+                                                  <option value="">全部状态</option>
+                                                  <option value="waiting">未开始发放</option>
+                                                  <option value="going">发放中</option>
+                                                  <option value="finished" selected>已全部发放</option>
+                                                  {% endif %}
+                                                </select>
+                                            </div>
+                                          <input type="submit" class="btn btn-info btn-sm" name="and" value="AND查询">
+                                          <input type="submit" class="btn btn-info btn-sm" name="or" value="OR查询">
+                                        </div>
+                                      </form>
+                                    <table class="table table-responsive-sm table-bordered table-striped table">
+                                      <thead>
+                                        <tr class="text-center">
+                                            <th scope="col">#</th>
+                                            <th scope="col">贷款号</th>
+                                            <th scope="col">身份证号</th>
+                                            <th scope="col">贷款金额</th>
+                                            <th scope="col">剩余金额</th>
+                                            <th scope="col">贷款银行</th>
+                                            <th scope="col">贷款状态</th>
+                                            <th scope="col">操作</th>
+                                        </tr>
+                                      </thead>
+                                        <tbody>
+                                            {% for loan in loans %}
+                                            <tr class="text-center">
+                                              <th class="align-middle" scope="row">{{ loans.index(loan) }}</th>
+                                              <td class="align-middle">{{ loan.loanID }}</td>
+                                              <td class="align-middle">{{ loan.cusID }}</td>
+                                              <td class="align-middle">{{ loan.money }}</td>
+                                              <td class="align-middle">{{ loan.rest_money }}</td>
+                                              <td class="align-middle">{{ loan.bank }}</td>
+                                              {% if loan.state == "waiting" %}
+                                              <td class="align-middle">未开始发放</td>
+                                              {% elif loan.state == "going" %}
+                                              <td class="align-middle">发放中</td>
+                                              {% else %}
+                                              <td class="align-middle">已全部发放</td>
+                                              {% endif %}
+                                              <td>
+                                                <button type="submit" class="btn btn-info btn-sm" 
+                                                  data-toggle="modal" data-target="#detail{{ loan.loanID + loan.cusID }}">查看</button>
+                                                <button type="submit" class="btn btn-success btn-sm" 
+                                                  data-toggle="modal" data-target="#edit{{ loan.loanID + loan.cusID }}">发放</button>
+                                                <a type="submit" class="btn btn-sm btn-danger" 
+                                                href="{{ url_for('debt_delete', loanID=loan.loanID) }}">删除</a>
+                                              </td>
+                                            </tr>
+                                            {% endfor %}
+                                      </tbody>
+                                    </table>
+                                </div>
+                            </div>
                     </div>
                 </div>
+                {% for loan in loans %}
+                <div class="modal fade bd-example-modal-lg" id="detail{{ loan.loanID + loan.cusID }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                        <form class="pt-3" method="post">
+                            {% for i in range(labels|length) %}
+                            <div class="form-group row">
+                            <label class="col-2 col-form-label text-right">{{ labels[i] }}</label>
+                            <div class="col-9">
+                                {% if names[i] == "state" %}
+                                <div class="d-flex align-items-center h-100">
+                                {% if loan.state == "going" %}
+                                <div class="form-check form-check-inline">
+                                    <input disabled class="form-check-input" type="radio" name="state" id="waiting" value="waiting">
+                                    <label class="form-check-label" for="waiting">未开始发放</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input disabled class="form-check-input" type="radio" name="state" id="going" value="going" checked>
+                                    <label class="form-check-label" for="going">发放中</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input disabled class="form-check-input" type="radio" name="state" id="finished" value="finished">
+                                    <label class="form-check-label" for="finished">已全部发放</label>
+                                </div>
+                                {% elif loan.state == "finished" %}
+                                <div class="form-check form-check-inline">
+                                    <input disabled class="form-check-input" type="radio" name="state" id="waiting" value="waiting">
+                                    <label class="form-check-label" for="waiting">未开始发放</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input disabled class="form-check-input" type="radio" name="state" id="going" value="going">
+                                    <label class="form-check-label" for="going">发放中</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input disabled class="form-check-input" type="radio" name="state" id="finished" value="finished" checked>
+                                    <label class="form-check-label" for="finished">已全部发放</label>
+                                </div>
+                                {% else %}
+                                <div class="form-check form-check-inline">
+                                    <input disabled class="form-check-input" type="radio" name="state" id="waiting" value="waiting" checked>
+                                    <label class="form-check-label" for="waiting">未开始发放</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input disabled class="form-check-input" type="radio" name="state" id="going" value="going">
+                                    <label class="form-check-label" for="going">发放中</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input disabled class="form-check-input" type="radio" name="state" id="finished" value="finished">
+                                    <label class="form-check-label" for="finished">已全部发放</label>
+                                </div>
+                                {% endif %}
+                                </div>
+                                {% else %}
+                                <input readonly type="text" class="form-control" name="{{ names[i] }}" 
+                                    value="{{ loan[names[i]] }}">
+                                {% endif %}
+                            </div>
+                            </div>
+                            {% endfor %}
+                        </form>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% for loan in loans %}
+                <div class="modal fade bd-example-modal-lg" id="edit{{ loan.loanID + loan.cusID }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                        <form class="pt-3" method="post"  action="{{ url_for('debt_update') }}">
+                            <div class="form-group row">
+                            <label class="col-2 col-form-label text-right">贷款号</label>
+                            <div class="col-9">
+                                <input readonly type="text" class="form-control" name="loanID" value="{{ loan.loanID }}">
+                            </div>
+                            </div>
+                            <div class="form-group row">
+                            <label class="col-2 col-form-label text-right">身份证号</label>
+                            <div class="col-9">
+                                <input readonly type="text" class="form-control" name="cusID" value="{{ loan.cusID }}">
+                            </div>
+                            </div>
+                            <div class="form-group row">
+                            <label class="col-2 col-form-label text-right">发放金额</label>
+                            <div class="col-9">
+                                <input type="text" class="form-control" name="money" value="0">
+                            </div>
+                            </div>
+                            <div class="row">
+                            <div class="col-11 w-100 d-flex justify-content-end">
+                                <button type="submit" class="btn btn-primary mr-2">提交</button>
+                            </div>
+                            </div>
+                        </form>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                {% endfor %}
             </main>
             </div>
             <footer class="c-footer">
@@ -128,6 +317,22 @@
             <div>&copy; 2020 nnnyt. All rights reserved.</div>
             <!-- <div class="ml-auto">Powered by&nbsp;<a href="https://coreui.io/">CoreUI</a></div> -->
             </footer>
+            {% with messages = get_flashed_messages() %}
+            {% for message in messages %}
+            <div class="fixed-top d-flex justify-content-end m-3">
+            {% if "unsuccessfully" in message %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {% else %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {% endif %}
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            </div>
+            {% endfor %}
+            {% endwith %}
         <!-- CoreUI and necessary plugins-->
         <script src="../static/js/coreui.bundle.min.js"></script>
         <!-- Plugins and scripts required by this view-->
