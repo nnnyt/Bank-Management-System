@@ -118,7 +118,149 @@
                 <div class="container-fluid">
                     <div class="fade-in">
                         <!-- Main content here -->
-                        <h4  class="display-4">业务统计</h1>
+                        <!-- <h4  class="display-4">业务统计</h4> -->
+                        <div class="card-columns cols-2">
+                            <div class="card">
+                                <div class="card-header">
+                                    储蓄统计
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="acc-chart" height="178"></canvas>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-header">
+                                    贷款统计
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="loan-chart" height="178"></canvas>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-header">
+                                    储蓄用户统计
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="cus-acc-chart" height="178"></canvas>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-header">
+                                    贷款用户统计
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="cus-loan-chart" height="178"></canvas>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-header">
+                                    储蓄统计
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-bordered table-hover table-responsive-sm">
+                                        <thead>
+                                          <tr class="text-center">
+                                            <th scope="col">年份</th>
+                                            {% for bank in banks %}
+                                            <th scope="col">{{ bank }}</th>
+                                            {% endfor %}
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          {% for stat in money_stat %}
+                                          <tr class="text-center">
+                                            <th class="align-middle" scope="row">{{ stat.period }}</th>
+                                            {% for bank in banks %}
+                                            <td class="align-middle">{{ stat.acc[bank] }}</td>
+                                            {% endfor %}
+                                          </tr>
+                                          {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-header">
+                                    贷款统计
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-bordered table-hover table-responsive-sm">
+                                        <thead>
+                                        <tr class="text-center">
+                                            <th scope="col">年份</th>
+                                            {% for bank in banks %}
+                                            <th scope="col">{{ bank }}</th>
+                                            {% endfor %}
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for stat in money_stat %}
+                                        <tr class="text-center">
+                                            <th class="align-middle" scope="row">{{ stat.period }}</th>
+                                            {% for bank in banks %}
+                                            <td class="align-middle">{{ stat.loan[bank] }}</td>
+                                            {% endfor %}
+                                        </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-header">
+                                    储蓄用户统计
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-bordered table-hover table-responsive-sm">
+                                        <thead>
+                                        <tr class="text-center">
+                                            <th scope="col">年份</th>
+                                            {% for bank in banks %}
+                                            <th scope="col">{{ bank }}</th>
+                                            {% endfor %}
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for stat in cus_stat %}
+                                        <tr class="text-center">
+                                            <th class="align-middle" scope="row">{{ stat.period }}</th>
+                                            {% for bank in banks %}
+                                            <td class="align-middle">{{ stat.acc[bank] }}</td>
+                                            {% endfor %}
+                                        </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-header">
+                                    贷款用户统计
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-bordered table-hover table-responsive-sm">
+                                        <thead>
+                                        <tr class="text-center">
+                                            <th scope="col">年份</th>
+                                            {% for bank in banks %}
+                                            <th scope="col">{{ bank }}</th>
+                                            {% endfor %}
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for stat in cus_stat %}
+                                        <tr class="text-center">
+                                            <th class="align-middle" scope="row">{{ stat.period }}</th>
+                                            {% for bank in banks %}
+                                            <td class="align-middle">{{ stat.loan[bank] }}</td>
+                                            {% endfor %}
+                                        </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </main>
@@ -130,6 +272,103 @@
             </footer>
         <!-- CoreUI and necessary plugins-->
         <script src="../static/js/coreui.bundle.min.js"></script>
+        <script src="../static/js/Chart.js"></script>
         <!-- Plugins and scripts required by this view-->
+        <script>
+            var banks = {{ banks | tojson }};
+            var colors = {{ colors | tojson }};
+            var money_stat = {{ money_stat | tojson }};
+            var cus_stat = {{ cus_stat | tojson }};
+            var data = {
+                labels: [],
+                datasets: []
+            };
+            for (bank of banks) {
+                data.datasets.push({
+                label: bank, data: [], 
+                fill: false, 
+                borderColor: colors[banks.indexOf(bank)]
+                })
+            }
+            for (stat of money_stat) {
+                data.labels.push(stat.period);
+                for (bank of banks) {
+                data.datasets[banks.indexOf(bank)].data.push(stat.acc[bank]);
+                }
+            }
+            var ctx = document.getElementById("acc-chart");
+            var acc_chart = new Chart(ctx, {
+                type: 'line',
+                data: data
+            });
+            
+            var data = {
+                labels: [],
+                datasets: []
+            };
+            for (bank of banks) {
+                data.datasets.push({
+                label: bank, data: [], 
+                fill: false, 
+                borderColor: colors[banks.indexOf(bank)]
+                })
+            }
+            for (stat of money_stat) {
+                data.labels.push(stat.period);
+                for (bank of banks) {
+                data.datasets[banks.indexOf(bank)].data.push(stat.loan[bank]);
+                }
+            }
+            var ctx = document.getElementById("loan-chart");
+            var loan_chart = new Chart(ctx, {
+                type: 'line',
+                data: data
+            });
+
+            var data = {
+                labels: [],
+                datasets: []
+            };
+            for (bank of banks) {
+                data.datasets.push({
+                label: bank, data: [], 
+                fill: false, 
+                borderColor: colors[banks.indexOf(bank)]
+                })
+            }
+            for (stat of cus_stat) {
+                data.labels.push(stat.period);
+                for (bank of banks) {
+                data.datasets[banks.indexOf(bank)].data.push(stat.acc[bank]);
+                }
+            }
+            var ctx = document.getElementById("cus-acc-chart");
+            var cus_acc_chart = new Chart(ctx, {
+                type: 'line',
+                data: data
+            });
+            var data = {
+                labels: [],
+                datasets: []
+            };
+            for (bank of banks) {
+                data.datasets.push({
+                label: bank, data: [], 
+                fill: false, 
+                borderColor: colors[banks.indexOf(bank)]
+                })
+            }
+            for (stat of cus_stat) {
+                data.labels.push(stat.period);
+                for (bank of banks) {
+                data.datasets[banks.indexOf(bank)].data.push(stat.loan[bank]);
+                }
+            }
+            var ctx = document.getElementById("cus-loan-chart");
+            var cus_loan_chart = new Chart(ctx, {
+                type: 'line',
+                data: data
+            });
+        </script>
     </body>
 </html>

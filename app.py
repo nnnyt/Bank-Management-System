@@ -2,9 +2,10 @@ from flask import Flask, render_template, request, flash, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 import config
 from models import db
-from datetime import datetime
+from datetime import datetime, date
 from init_db import init_data
 from models import Bank, Customer, Account, Saveacc, Checkacc, Cusforacc, Loan, Cusforloan, Employee, Payinfo
+from sqlalchemy import func
 
 app = Flask(__name__)
 app.config.from_object(config)
@@ -450,7 +451,53 @@ def debt_delete(loanID):
 
 @app.route('/statistics')
 def statistics():
-    return render_template('statistics.html')
+    money_stat = []
+    cus_stat = []
+
+    end_year = db.session.query(func.max(Customer.settime)).scalar().year
+    colors = ['rgba(178, 167, 212, 1)', 'rgba(151, 187, 205, 1)', 'rgba(244, 188, 175, 1)']
+    banks = [bank.bankname for bank in Bank.query.all()]
+    for y in range(end_year - 4, end_year + 1):
+        money_stat.append({
+            'period': y, 
+            'acc': {bank: db.session.query(func.sum(Account.money)).filter(
+                    Account.cusforacc.has(Cusforacc.bank == bank)
+                ).filter(
+                    Account.settime.between(date(y, 1, 1), date(y, 12, 31))
+                ).scalar() for bank in banks}, 
+            'loan': {bank: db.session.query(func.sum(Loan.money)).filter(
+                    Loan.bank == bank
+                ).filter(
+                    Loan.settime.between(date(y, 1, 1), date(y, 12, 31))
+                ).scalar() for bank in banks}, 
+        })
+        cus_stat.append({
+            'period': y,
+            'acc': {bank: db.session.query(func.count(Account.accountID)).filter(
+                Account.cusforacc.has(Cusforacc.bank == bank)
+            ).filter(
+                    Account.settime.between(date(y, 1, 1), date(y, 12, 31))
+                ).scalar() for bank in banks},
+            'loan': {bank: db.session.query(func.count(Loan.loanID)).filter(
+                Loan.bank == bank
+            ).filter(
+                    Loan.settime.between(date(y, 1, 1), date(y, 12, 31))
+                ).scalar() for bank in banks}
+        })
+    for stat in money_stat:
+        for bank in banks:
+            if stat['acc'][bank] == None:
+                stat['acc'][bank] = 0
+            if stat['loan'][bank] == None:
+                stat['loan'][bank] = 0
+    for stat in cus_stat:
+        for bank in banks:
+            if stat['acc'][bank] == None:
+                stat['acc'][bank] = 0
+            if stat['loan'][bank] == None:
+                stat['loan'][bank] = 0
+
+    return render_template('statistics.html', banks=banks, colors=colors, money_stat=money_stat, cus_stat=cus_stat)
 
 
 if __name__ == '__main__':
