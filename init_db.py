@@ -74,7 +74,7 @@ def fake_acc(bank_data, cus_data, num=100):
         cus = random.choice(cus_data)
         acc = {
             'accountID': ''.join(random.choices(string.digits, k=6)), 
-            'money': random.uniform(100, 10000),
+            'money': round(random.uniform(100, 10000), 2),
             'settime': date(random.randint(2015, 2020), random.randint(1, 12), random.randint(1, 28)), 
             'accounttype': random.choice(['saveacc', 'checkacc']),
         }
@@ -108,7 +108,7 @@ def fake_loan(bank_data, cus_data, num=100):
     for _ in range(num):
         bank = random.choice(bank_data)
         cus = random.choice(cus_data)
-        money = random.uniform(100, 10000),
+        money = round(random.uniform(100, 10000), 2),
         loan = {
             'loanID': ''.join(random.choices(string.digits, k=4)), 
             'settime': date(random.randint(2015, 2020), random.randint(1, 12), random.randint(1, 28)), 
@@ -129,15 +129,15 @@ def fake_loan(bank_data, cus_data, num=100):
 def init_data(db):
     print('Generating data ...')
     from models import Bank, Customer, Account, Saveacc, Checkacc, Cusforacc, Loan, Cusforloan, Department, Employee
-    db.session.query(Employee).delete()
-    db.session.query(Department).delete()
+    db.session.query(Cusforloan).delete()
     db.session.query(Cusforacc).delete()
     db.session.query(Saveacc).delete()
     db.session.query(Checkacc).delete()
-    db.session.query(Cusforloan).delete()
     db.session.query(Loan).delete()
     db.session.query(Customer).delete()
     db.session.query(Account).delete()
+    db.session.query(Employee).delete()
+    db.session.query(Department).delete()
     db.session.query(Bank).delete()
 
     bank_data = fake_bank()

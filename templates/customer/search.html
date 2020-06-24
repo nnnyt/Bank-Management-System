@@ -83,12 +83,12 @@
                 </a>
                 <ul class="c-sidebar-nav-dropdown-items">
                     <li class="c-sidebar-nav-item">
-                        <a class="c-sidebar-nav-link" href="../debt/create"><span class="c-sidebar-nav-icon"></span> 新增贷款</a>
+                        <a class="c-sidebar-nav-link" href="../loan/create"><span class="c-sidebar-nav-icon"></span> 新增贷款</a>
                     </li>
                 </ul>
                 <ul class="c-sidebar-nav-dropdown-items">
                     <li class="c-sidebar-nav-item">
-                        <a class="c-sidebar-nav-link" href="../debt/search"><span class="c-sidebar-nav-icon"></span> 查询贷款</a>
+                        <a class="c-sidebar-nav-link" href="../loan/search"><span class="c-sidebar-nav-icon"></span> 查询贷款</a>
                     </li>
                 </ul>
             </li>
@@ -217,7 +217,7 @@
                     <div class="modal-content">
                         <div class="modal-body">
                         {% set editable = [false, false, false, true, true,
-                            true, true, true, true, true, true
+                            true, true, true, true, true, true, false
                         ] %}
                         <form class="pt-3" method="post" action="{{ url_for('customer_update') }}">
                             {% for i in range(labels|length) %}

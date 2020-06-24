@@ -15,7 +15,7 @@ db.init_app(app)
 
 with app.app_context():
     db.create_all()
-    # init_data(db)
+    init_data(db)
 
 @app.route('/')
 def hello_world():
@@ -93,9 +93,9 @@ def customer_create():
 @app.route('/customer/search', methods=['GET', 'POST'])
 def customer_search():
     labels = ["注册银行", "客户姓名", "身份证号", "联系电话", "家庭住址", 
-                "联系人姓名", "联系人手机号", "联系人Email", "联系人关系", "账户负责人", "贷款负责人"]
+                "联系人姓名", "联系人手机号", "联系人Email", "联系人关系", "账户负责人", "贷款负责人", "注册时间"]
     names = ["bank", "cusname", "cusID", "cusphone", "address",
-             "contact_name", "contact_phone", "contact_email", "relation", "accres", "loanres"]
+             "contact_name", "contact_phone", "contact_email", "relation", "accres", "loanres", "settime"]
     if request.method == 'GET':
         init_form = {'cusname': '', 'cusID': '', 'cusphone': ''}
         customers = Customer.query.all()
@@ -319,10 +319,10 @@ def account_update():
             dict(accountID=accountID, cusID=cusID, visit=datetime.now()))
         db.session.commit()
         flash('Update account ' + accountID + ' successfully!')
-        return redirect(url_for('account.search'))
+        return redirect(url_for('account_search'))
     else:
         flash('Update account ' + accountID + ' unsuccessfully!')
-        return redirect(url_for('account.search'))
+        return redirect(url_for('account_search'))
 
 @app.route('/account/delete/<accountID>')
 def account_delete(accountID):
@@ -337,13 +337,13 @@ def account_delete(accountID):
     flash('Delete account ' + accountID + ' successfully!')
     return redirect(url_for('account_search'))
 
-@app.route('/debt/create' , methods=['GET', 'POST'])
-def debt_create():
+@app.route('/loan/create' , methods=['GET', 'POST'])
+def loan_create():
     labels = ["贷款号*", "身份证号*", "贷款金额*", "贷款银行*"]
     names = ["loanID", "cusID", "money", "bank"]
     init_form = {item: '' for item in names}
     if request.method == 'GET':
-        return render_template('debt/create.html', init_form=init_form, labels=labels, names=names)
+        return render_template('loan/create.html', init_form=init_form, labels=labels, names=names)
     if request.method == 'POST':
         errors = []
         loanID = request.form['loanID']
@@ -357,7 +357,7 @@ def debt_create():
             money = float(money)
         except:
             errors.append('money')
-        if len(bank) == 0 or len(bank) > 20:
+        if len(bank) == 0 or len(bank) > 20 or Bank.query.filter_by(bankname=bank).first() is None:
             errors.append('bank')
         if Loan.query.filter_by(loanID=loanID).first():
             errors.append('loanID')
@@ -370,20 +370,20 @@ def debt_create():
             db.session.add(new_cusforloan)
             db.session.commit()
             flash('Create new loan ' + loanID + ' successfully!')
-            return render_template('debt/create.html', errors=errors, init_form=init_form, labels=labels, names=names)
+            return render_template('loan/create.html', errors=errors, init_form=init_form, labels=labels, names=names)
         else:
-            return render_template('debt/create.html', errors=errors, init_form=request.form, labels=labels, names=names)
+            return render_template('loan/create.html', errors=errors, init_form=request.form, labels=labels, names=names)
 
-@app.route('/debt/search', methods=['GET', 'POST'])
-def debt_search():
-    labels = ["贷款号", "身份证号", "贷款金额", "剩余金额", "贷款银行", "贷款状态"]
-    names = ["loanID", "cusID", "money", "rest_money", "bank", "state"]
+@app.route('/loan/search', methods=['GET', 'POST'])
+def loan_search():
+    labels = ["贷款号", "身份证号", "贷款金额", "剩余金额", "贷款银行", "贷款状态", "贷款时间"]
+    names = ["loanID", "cusID", "money", "rest_money", "bank", "state", "settime"]
     if request.method == 'GET':
         init_form = {'loanID': '', 'cusID': '', 'state': ''}
         loans = Loan.query.all()
         for loan in loans:
             setattr(loan, 'cusID', loan.cusforloan[0].cusID)
-        return render_template('debt/search.html', init_form=init_form, loans=loans, labels=labels, names=names)
+        return render_template('loan/search.html', init_form=init_form, loans=loans, labels=labels, names=names)
     if request.method == 'POST':
         loanID = request.form['loanID']
         cusID = request.form['cusID']
@@ -405,10 +405,10 @@ def debt_search():
         loans = loans.all()
         for loan in loans:
             setattr(loan, 'cusID', loan.cusforloan[0].cusID)
-        return render_template('debt/search.html', loans=loans, init_form=request.form, labels=labels, names=names)
+        return render_template('loan/search.html', loans=loans, init_form=request.form, labels=labels, names=names)
 
-@app.route('/debt/update', methods=['POST'])
-def debt_update():
+@app.route('/loan/update', methods=['POST'])
+def loan_update():
     errors = []
     loanID = request.form['loanID']
     cusID = request.form['cusID']
@@ -441,22 +441,22 @@ def debt_update():
         db.session.add(new_payinfo)
         db.session.commit()
         flash('Update loan ' + loanID + ' successfully!')
-        return redirect(url_for('debt_search'))
+        return redirect(url_for('loan_search'))
     else:
         flash('Update loan ' + loanID + ' unsuccessfully!')
-        return redirect(url_for('debt_search'))
+        return redirect(url_for('loan_search'))
 
-@app.route('/debt/delete<loanID>')
-def debt_delete(loanID):
+@app.route('/loan/delete<loanID>')
+def loan_delete(loanID):
     loan = Loan.query.filter_by(loanID=loanID)
     if loan.first().state == 'going':
         flash('Delete loan ' + loanID + ' unsuccessfully!')
-        return redirect(url_for('debt_search'))
+        return redirect(url_for('loan_search'))
     Cusforloan.query.filter_by(loanID=loanID).delete()
     loan.delete()
     db.session.commit()
     flash('Delete loan ' + loanID + ' successfully!')
-    return redirect(url_for('debt_search'))
+    return redirect(url_for('loan_search'))
 
 @app.route('/statistics/year')
 def statistics_year():
@@ -498,8 +498,12 @@ def statistics_year():
         for bank in banks:
             if stat['acc'][bank] == None:
                 stat['acc'][bank] = 0
+            else:
+                stat['acc'][bank] = round(stat['acc'][bank], 2)
             if stat['loan'][bank] == None:
                 stat['loan'][bank] = 0
+            else:
+                stat['loan'][bank] = round(stat['loan'][bank], 2)
     for stat in cus_stat:
         for bank in banks:
             if stat['acc'][bank] == None:
@@ -557,8 +561,12 @@ def statistics_quarter():
         for bank in banks:
             if stat['acc'][bank] == None:
                 stat['acc'][bank] = 0
+            else:
+                stat['acc'][bank] = round(stat['acc'][bank], 2)
             if stat['loan'][bank] == None:
                 stat['loan'][bank] = 0
+            else:
+                stat['loan'][bank] = round(stat['loan'][bank], 2)
     for stat in cus_stat:
         for bank in banks:
             if stat['acc'][bank] == None:
@@ -614,8 +622,12 @@ def statistics_month():
         for bank in banks:
             if stat['acc'][bank] == None:
                 stat['acc'][bank] = 0
+            else:
+                stat['acc'][bank] = round(stat['acc'][bank], 2)
             if stat['loan'][bank] == None:
                 stat['loan'][bank] = 0
+            else:
+                stat['loan'][bank] = round(stat['loan'][bank], 2)
     for stat in cus_stat:
         for bank in banks:
             if stat['acc'][bank] == None:

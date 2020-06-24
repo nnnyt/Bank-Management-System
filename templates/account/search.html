@@ -83,12 +83,12 @@
                 </a>
                 <ul class="c-sidebar-nav-dropdown-items">
                     <li class="c-sidebar-nav-item">
-                        <a class="c-sidebar-nav-link" href="../debt/create"><span class="c-sidebar-nav-icon"></span> 新增贷款</a>
+                        <a class="c-sidebar-nav-link" href="../loan/create"><span class="c-sidebar-nav-icon"></span> 新增贷款</a>
                     </li>
                 </ul>
                 <ul class="c-sidebar-nav-dropdown-items">
                     <li class="c-sidebar-nav-item">
-                        <a class="c-sidebar-nav-link" href="../debt/search"><span class="c-sidebar-nav-icon"></span> 查询贷款</a>
+                        <a class="c-sidebar-nav-link" href="../loan/search"><span class="c-sidebar-nav-icon"></span> 查询贷款</a>
                     </li>
                 </ul>
             </li>
@@ -219,10 +219,10 @@
                     <div class="modal-content">
                     <div class="modal-body">
                         {% set labels = ["账户号", "身份证号", "余额", "开户银行", 
-                        "账户类型", "货币类型", "利率"
+                        "账户类型", "货币类型", "利率", "开户时间"
                         ] %}
                         {% set names = ["accountID", "cusID", "money", "bank",
-                        "accounttype", "savetype", "interestrate"
+                        "accounttype", "savetype", "interestrate", "settime"
                         ] %}
                         <form class="pt-3" method="post">
                         {% for i in range(labels|length) %}
@@ -257,10 +257,10 @@
                     <div class="modal-content">
                     <div class="modal-body">
                         {% set labels = ["账户号", "身份证号", "余额", "开户银行", 
-                        "账户类型", "透支额度"
+                        "账户类型", "透支额度", "开户时间"
                         ] %}
                         {% set names = ["accountID", "cusID", "money", "bank",
-                        "accounttype", "overdraft"
+                        "accounttype", "overdraft", "settime"
                         ] %}
                         <form class="pt-3" method="post">
                         {% for i in range(labels|length) %}
@@ -298,13 +298,13 @@
                     <div class="modal-content">
                     <div class="modal-body">
                         {% set labels = ["账户号", "身份证号", "余额", "开户银行", 
-                        "账户类型", "货币类型", "利率"
+                        "账户类型", "货币类型", "利率", "开户时间"
                         ] %}
                         {% set names = ["accountID", "cusID", "money", "bank",
-                        "accounttype", "savetype", "interestrate"
+                        "accounttype", "savetype", "interestrate", "settime"
                         ] %}
                         {% set editable = [false, false, true, false,
-                        false, true, true
+                        false, true, true, false
                         ] %}
                         <form class="pt-3" method="post" action="{{ url_for('account_update') }}">
                         {% for i in range(labels|length) %}
@@ -348,13 +348,13 @@
                     <div class="modal-content">
                     <div class="modal-body">
                         {% set labels = ["账户号", "身份证号", "余额", "开户银行", 
-                        "账户类型", "透支额度"
+                        "账户类型", "透支额度", "开户时间"
                         ] %}
                         {% set names = ["accountID", "cusID", "money", "bank",
-                        "accounttype", "overdraft"
+                        "accounttype", "overdraft", "settime"
                         ] %}
                         {% set editable = [false, false, true, false,
-                        false, true
+                        false, true, false
                         ] %}
                         <form class="pt-3" method="post" action="{{ url_for('account_update') }}">
                         {% for i in range(labels|length) %}
@@ -384,7 +384,7 @@
                         {% endfor %}
                         <div class="row">
                             <div class="col-11 w-100 d-flex justify-content-end">
-                            <button type="submit" class="btn btn-primary">提交</button>
+                            <button type="submit" class="btn btn-info">提交</button>
                             </div>
                         </div>
                         </form>
