@@ -67,14 +67,18 @@ def customer_create():
             errors.append('contact_email')
         if len(relation) == 0 or len(relation) > 10:
             errors.append('relation')
-        if accres is None and not Employee.query.filter_by(empID=accres).first():
+        if (accres != '') and (not Employee.query.filter_by(empID=accres).first()):
             errors.append('accres')
-        if loanres is None and not Employee.query.filter_by(empID=loanres).first():
+        if (loanres != '') and (not Employee.query.filter_by(empID=loanres).first()):
             errors.append('loanres')
+        if accres == '':
+            accres = None
+        if loanres == '':
+            loanres = None
         if not errors:
             new_customer = Customer(cusID=cusID, settime=datetime.now(), bank=bank, cusname=cusname, cusphone=cusphone, 
                 address=address, contact_name=contact_name, contact_phone=contact_phone, 
-                contact_email=contact_email, relation=relation)
+                contact_email=contact_email, relation=relation,loanres=loanres, accres=accres)
             db.session.add(new_customer)
             db.session.commit()
             flash('Create new customer ' + cusID + ' successfully!')
@@ -85,9 +89,9 @@ def customer_create():
 @app.route('/customer/search', methods=['GET', 'POST'])
 def customer_search():
     labels = ["注册银行", "客户姓名", "身份证号", "联系电话", "家庭住址", 
-                "联系人姓名", "联系人手机号", "联系人Email", "联系人关系"]
+                "联系人姓名", "联系人手机号", "联系人Email", "联系人关系", "账户负责人", "贷款负责人"]
     names = ["bank", "cusname", "cusID", "cusphone", "address",
-             "contact_name", "contact_phone", "contact_email", "relation"]
+             "contact_name", "contact_phone", "contact_email", "relation", "accres", "loanres"]
     if request.method == 'GET':
         init_form = {'cusname': '', 'cusID': '', 'cusphone': ''}
         customers = Customer.query.all()
