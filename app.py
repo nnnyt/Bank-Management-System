@@ -6,6 +6,7 @@ from datetime import datetime, date
 from init_db import init_data
 from models import Bank, Customer, Account, Saveacc, Checkacc, Cusforacc, Loan, Cusforloan, Employee, Payinfo
 from sqlalchemy import func
+import calendar
 
 app = Flask(__name__)
 app.config.from_object(config)
@@ -449,8 +450,9 @@ def debt_delete(loanID):
     flash('Delete loan ' + loanID + ' successfully!')
     return redirect(url_for('debt_search'))
 
-@app.route('/statistics')
-def statistics():
+@app.route('/statistics/year')
+def statistics_year():
+    time = '年份'
     money_stat = []
     cus_stat = []
 
@@ -497,8 +499,122 @@ def statistics():
             if stat['loan'][bank] == None:
                 stat['loan'][bank] = 0
 
-    return render_template('statistics.html', banks=banks, colors=colors, money_stat=money_stat, cus_stat=cus_stat)
+    return render_template('statistics.html', banks=banks, colors=colors, money_stat=money_stat, cus_stat=cus_stat, time=time)
 
+@app.route('/statistics/quarter')
+def statistics_quarter():
+    time = '季度'
+    money_stat = []
+    cus_stat = []
+
+    end_date = db.session.query(func.max(Customer.settime)).scalar()
+    end_year = end_date.year
+    end_quarter = (end_date.month - 1) // 3 + 1
+    quarters = [str(end_year + (end_quarter - i - 1) // 4) + 
+        'Q' + str((end_quarter + 7 - i) % 4 + 1) for i in range(4, -1, -1)]
+    colors = ['rgba(178, 167, 212, 1)', 'rgba(151, 187, 205, 1)', 'rgba(244, 188, 175, 1)']
+    banks = [bank.bankname for bank in Bank.query.all()]
+    
+    for q in quarters:
+        y = int(q[:4])
+        m_start = (int(q[-1]) - 1) * 3 + 1
+        m_end = (int(q[-1]) - 1) * 3 + 3
+        money_stat.append({
+            'period': q, 
+            'acc': {bank: db.session.query(func.sum(Account.money)).filter(
+                    Account.cusforacc.has(Cusforacc.bank == bank)
+                ).filter(
+                    Account.settime.between(date(y, m_start, 1), date(y, m_end, calendar.monthrange(y, m_end)[1]))
+                ).scalar() for bank in banks}, 
+            'loan': {bank: db.session.query(func.sum(Loan.money)).filter(
+                    Loan.bank == bank
+                ).filter(
+                    Loan.settime.between(date(y, m_start, 1), date(y, m_end, calendar.monthrange(y, m_end)[1]))
+                ).scalar() for bank in banks}, 
+        })
+        cus_stat.append({
+            'period': q,
+            'acc': {bank: db.session.query(func.count(Account.accountID)).filter(
+                Account.cusforacc.has(Cusforacc.bank == bank)
+            ).filter(
+                    Account.settime.between(date(y, m_start, 1), date(y, m_end, calendar.monthrange(y, m_end)[1]))
+                ).scalar() for bank in banks},
+            'loan': {bank: db.session.query(func.count(Loan.loanID)).filter(
+                Loan.bank == bank
+            ).filter(
+                    Loan.settime.between(date(y, m_start, 1), date(y, m_end, calendar.monthrange(y, m_end)[1]))
+                ).scalar() for bank in banks}
+        })
+    for stat in money_stat:
+        for bank in banks:
+            if stat['acc'][bank] == None:
+                stat['acc'][bank] = 0
+            if stat['loan'][bank] == None:
+                stat['loan'][bank] = 0
+    for stat in cus_stat:
+        for bank in banks:
+            if stat['acc'][bank] == None:
+                stat['acc'][bank] = 0
+            if stat['loan'][bank] == None:
+                stat['loan'][bank] = 0
+    return render_template('statistics.html', banks=banks, colors=colors, money_stat=money_stat, cus_stat=cus_stat, time=time)
+        
+    
+@app.route('/statistics/month')
+def statistics_month():
+    time = '月份'
+    money_stat = []
+    cus_stat = []
+
+    end_date = db.session.query(func.max(Customer.settime)).scalar()
+    end_year = end_date.year
+    end_month = end_date.month
+    months = [str(end_year + (end_month - i - 1) // 12) + 
+        'M' + str((end_month + 11 - i) % 12 + 1) for i in range(4, -1, -1)]
+    colors = ['rgba(178, 167, 212, 1)', 'rgba(151, 187, 205, 1)', 'rgba(244, 188, 175, 1)']
+    banks = [bank.bankname for bank in Bank.query.all()]
+    for month in months:
+        y = int(month[:4])
+        m = int(month.split('M')[-1])
+        money_stat.append({
+            'period': month, 
+            'acc': {bank: db.session.query(func.sum(Account.money)).filter(
+                    Account.cusforacc.has(Cusforacc.bank == bank)
+                ).filter(
+                    Account.settime.between(date(y, m, 1), date(y, m, calendar.monthrange(y, m)[1]))
+                ).scalar() for bank in banks}, 
+            'loan': {bank: db.session.query(func.sum(Loan.money)).filter(
+                    Loan.bank == bank
+                ).filter(
+                    Loan.settime.between(date(y, m, 1), date(y, m, calendar.monthrange(y, m)[1]))
+                ).scalar() for bank in banks}, 
+        })
+        cus_stat.append({
+            'period': month,
+            'acc': {bank: db.session.query(func.count(Account.accountID)).filter(
+                Account.cusforacc.has(Cusforacc.bank == bank)
+            ).filter(
+                    Account.settime.between(date(y, m, 1), date(y, m, calendar.monthrange(y, m)[1]))
+                ).scalar() for bank in banks},
+            'loan': {bank: db.session.query(func.count(Loan.loanID)).filter(
+                Loan.bank == bank
+            ).filter(
+                    Loan.settime.between(date(y, m, 1), date(y, m, calendar.monthrange(y, m)[1]))
+                ).scalar() for bank in banks}
+        })
+    for stat in money_stat:
+        for bank in banks:
+            if stat['acc'][bank] == None:
+                stat['acc'][bank] = 0
+            if stat['loan'][bank] == None:
+                stat['loan'][bank] = 0
+    for stat in cus_stat:
+        for bank in banks:
+            if stat['acc'][bank] == None:
+                stat['acc'][bank] = 0
+            if stat['loan'][bank] == None:
+                stat['loan'][bank] = 0
+    return render_template('statistics.html', banks=banks, colors=colors, money_stat=money_stat, cus_stat=cus_stat, time=time)
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8080, debug=True)
