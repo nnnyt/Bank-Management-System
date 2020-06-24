@@ -133,7 +133,81 @@
                 <div class="container-fluid">
                     <div class="fade-in">
                         <!-- Main content here -->
-                        <h4  class="display-4">欢迎使用银行管理系统</h1>
+                        <div class="row">
+                            <div class="col-sm-6 col-lg-3">
+                              <div class="card text-white bg-gradient-primary">
+                                <div class="card-body card-body pb-0 d-flex justify-content-between align-items-start">
+                                  <div>
+                                    <div class="text-value-lg">{{bank_num}}</div>
+                                    <div>Banks</div>
+                                  </div>
+                                </div>
+                                <div class="c-chart-wrapper mt-3 mx-3" style="height:70px;">
+                                    <svg class="c-icon c-icon-lg">
+                                        <use xlink:href="../static/icons/free.svg#cil-bank"></use>
+                                    </svg>
+                                </div>
+                              </div>
+                            </div>
+                            <!-- /.col-->
+                            <div class="col-sm-6 col-lg-3">
+                              <div class="card text-white bg-gradient-info">
+                                <div class="card-body card-body pb-0 d-flex justify-content-between align-items-start">
+                                  <div>
+                                    <div class="text-value-lg">{{ cus_num }}</div>
+                                    <div>Customers</div>
+                                  </div>
+                                </div>
+                                <div class="c-chart-wrapper mt-3 mx-3" style="height:70px;">
+                                    <svg class="c-icon c-icon-lg">
+                                        <use xlink:href="../static/icons/free.svg#cil-face"></use>
+                                    </svg>
+                                </div>
+                              </div>
+                            </div>
+                            <!-- /.col-->
+                            <div class="col-sm-6 col-lg-3">
+                              <div class="card text-white bg-gradient-warning">
+                                <div class="card-body card-body pb-0 d-flex justify-content-between align-items-start">
+                                  <div>
+                                    <div class="text-value-lg">{{acc_num}}</div>
+                                    <div>Accounts</div>
+                                  </div>
+                                </div>
+                                <div class="c-chart-wrapper mt-3 mx-3" style="height:70px;">
+                                    <svg class="c-icon c-icon-lg">
+                                        <use xlink:href="../static/icons/free.svg#cil-money"></use>
+                                    </svg>
+                                </div>
+                              </div>
+                            </div>
+                            <!-- /.col-->
+                            <div class="col-sm-6 col-lg-3">
+                              <div class="card text-white bg-gradient-danger">
+                                <div class="card-body card-body pb-0 d-flex justify-content-between align-items-start">
+                                  <div>
+                                    <div class="text-value-lg">{{loan_num}}</div>
+                                    <div>Loans</div>
+                                  </div>
+                                </div>
+                                <div class="c-chart-wrapper mt-3 mx-3" style="height:70px;">
+                                    <svg class="c-icon c-icon-lg">
+                                        <use xlink:href="../static/icons/free.svg#cil-envelope-letter"></use>
+                                    </svg>
+                                </div>
+                              </div>
+                            </div>
+                            <!-- /.col-->
+                          </div>
+                          <h4  class="display-4">欢迎使用银行管理系统</h4>
+                        <!-- <div class="card">
+                            <div class="card-body">
+                              <div class="d-flex justify-content-between">
+                                <h4  class="display-4">欢迎使用银行管理系统</h4>
+                                <span>学号:PB17111577</span>
+                              </div>
+                            </div>
+                        </div> -->
                     </div>
                 </div>
             </main>

@@ -19,11 +19,15 @@ with app.app_context():
 
 @app.route('/')
 def hello_world():
-    return render_template('index.html')
+    return redirect(url_for('index'))
 
 @app.route('/index')
 def index():
-    return render_template('index.html')
+    bank_num = db.session.query(func.count(Bank.bankname)).scalar()
+    cus_num = db.session.query(func.count(Customer.cusID)).scalar()
+    acc_num = db.session.query(func.count(Account.accountID)).scalar()
+    loan_num = db.session.query(func.count(Loan.loanID)).scalar()
+    return render_template('index.html', bank_num=bank_num, cus_num=cus_num, loan_num=loan_num, acc_num=acc_num)
 
 @app.route('/customer/create', methods=['GET', 'POST'])
 def customer_create():
