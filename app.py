@@ -15,7 +15,7 @@ db.init_app(app)
 
 with app.app_context():
     db.create_all()
-    init_data(db)
+    # init_data(db)
 
 @app.route('/')
 def hello_world():
@@ -250,14 +250,14 @@ def account_search():
         accounts = Account.query.filter_by()
         if 'and' in request.form:
             if accountID:
-                accounts = account.filter_by(accountID=accountID)
+                accounts = accounts.filter_by(accountID=accountID)
             if cusID:
                 accounts = accounts.filter(Account.cusforacc.has(Cusforacc.cusID==cusID))
             if accounttype:
                 accounts = accounts.filter_by(accounttype=accounttype)
         else:
             if accountID or cusID:
-                accounts = accounts.filter((Account.accountID == accountID) | (Account.cusID == cusID))
+                accounts = accounts.filter(Account.cusforacc.has(Cusforacc.cusID == cusID) | (Account.accountID == accountID))
             if accounttype:
                 accounts = accounts.filter_by(accounttype=accounttype)
         accounts = accounts.all()
@@ -393,12 +393,12 @@ def loan_search():
             if loanID:
                 loans = loans.filter_by(loanID=loanID)
             if cusID:
-                loans = loans.filter(Loan.Cusforloan.has(Cusforloan.cusID==cusID))
+                loans = loans.filter(Loan.cusforloan.any(Cusforloan.cusID==cusID))
             if state:
                 loans = loans.filter_by(state=state)
         else:
             if cusID or loanID:
-                loans = loans.filter(Loan.cusforloan.has(Cusforloan.cusID == cusID) | 
+                loans = loans.filter(Loan.cusforloan.any(Cusforloan.cusID == cusID) | 
                 (Loan.loanID == loanID))
             if state:
                 loans = loans.filter_by(state=state)
@@ -635,6 +635,10 @@ def statistics_month():
             if stat['loan'][bank] == None:
                 stat['loan'][bank] = 0
     return render_template('statistics.html', banks=banks, colors=colors, money_stat=money_stat, cus_stat=cus_stat, time=time)
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'),404
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8080, debug=True)
